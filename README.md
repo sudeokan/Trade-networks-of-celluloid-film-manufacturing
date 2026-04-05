@@ -12,7 +12,7 @@ This project contains simple Python scripts used for analysing location data and
 
 python standardize_locations.py
 - Cleans city and country names
--Fixes formatting issues in the dataset
+- Fixes formatting issues in the dataset
 
 python get_coordinates_and_distances.py
 - Converts city names into geographic coordinates
