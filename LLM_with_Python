@@ -6,7 +6,7 @@ from google import genai
 INPUT_FILE = "Adressen A.xlsx"
 OUTPUT_FILE = "test_20_rows.csv"
 
-client = genai.Client(api_key="AIzaSyBJU7ps-1f61pii3Sy8qFijUPRZ6H7wg9E")
+client = genai.Client(api_key=" API KEY (I used mine while trying)")
 MODEL = "gemini-2.5-flash"
 
 def clean_text(value):
