@@ -1,0 +1,34 @@
+There are rows of text where supplier names and addresses are mixed together in the excel file that is uploaded.
+
+Your task is to extract address information carefully.
+
+For each row, follow these steps:
+
+1. Identify all parts of the text.
+2. Decide which part is the address.
+3. Ignore company names and unrelated words.
+4. From the selected address part, extract:
+   - street 
+   - city
+   - country
+
+Rules:
+- Do not skip or merge rows
+- If you are not sure about a field, leave it empty
+- Do not guess missing information
+- City and country should be in modern English
+- If multiple address exist in the same field, then separate them row by row
+
+Output format (one row per input):
+
+Row 1:
+street: ...
+city: ...
+country: ...
+
+Row 2:
+street: ...
+city: ...
+country: ...
+
+and so on
