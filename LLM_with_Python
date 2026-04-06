@@ -1,0 +1,109 @@
+import re
+import json
+import pandas as pd
+from google import genai
+
+INPUT_FILE = "Adressen A.xlsx"
+OUTPUT_FILE = "test_20_rows.csv"
+
+client = genai.Client(api_key="AIzaSyBJU7ps-1f61pii3Sy8qFijUPRZ6H7wg9E")
+MODEL = "gemini-2.5-flash"
+
+def clean_text(value):
+    if pd.isna(value):
+        return ""
+    text = str(value)
+    text = re.sub(r"<[^>]+>", " ", text)
+    text = text.replace("~~", "")
+    text = text.replace("&nbsp;", " ")
+    text = text.replace("\r", "\n")
+    text = re.sub(r"\n+", " | ", text)
+    text = re.sub(r"\s+", " ", text).strip(" |")
+    return text.strip()
+
+def extract_location(text):
+    prompt = f"""
+Extract ONLY address from the text.
+
+Return JSON:
+{{
+  "street": "",
+  "city": "",
+  "country": ""
+}}
+
+Rules:
+- Ignore company names
+- Extract only address part
+- street must include number if exists
+- city must be normalized to English (Brussel → Brussels)
+- country must be full English name (Belgium, France, Germany)
+- If multiple addresses → choose the most complete one
+- If unclear → return empty strings
+- Return ONLY JSON
+
+Text:
+{text}
+"""
+
+            resp = client.models.generate_content(
+                model=MODEL,
+                contents=prompt
+            )
+        
+            raw = resp.text.strip()
+        
+            try:
+                data = json.loads(raw)
+            except:
+                match = re.search(r"\{.*\}", raw, re.DOTALL)
+                if match:
+                    try:
+                        data = json.loads(match.group(0))
+                    except:
+                        data = {"street": "", "city": "", "country": ""}
+                else:
+                    data = {"street": "", "city": "", "country": ""}
+        
+            return data
+
+df = pd.read_excel(INPUT_FILE)
+df = df.head(20) 
+cols = list(df.columns)
+
+df = df.rename(columns={
+    cols[0]: "raw_material",
+    cols[1]: "supplier_raw"
+})
+
+df["clean"] = df["supplier_raw"].apply(clean_text)
+
+streets, cities, countries = [], [], []
+
+for txt in df["clean"]:
+    if not txt:
+        streets.append("")
+        cities.append("")
+        countries.append("")
+        continue
+
+    try:
+        out = extract_location(txt)
+        streets.append(out.get("street", ""))
+        cities.append(out.get("city", ""))
+        countries.append(out.get("country", ""))
+    except:
+        streets.append("")
+        cities.append("")
+        countries.append("")
+
+df["street"] = streets
+df["city"] = cities
+df["country"] = countries
+
+result = df[["supplier_raw", "street", "city", "country"]]
+
+result.to_csv(OUTPUT_FILE, index=False)
+
+print("Finito:", OUTPUT_FILE)
+result
