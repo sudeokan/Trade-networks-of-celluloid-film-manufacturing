@@ -223,13 +223,13 @@ for raw in tqdm(entries, desc="Processing"):
             "Country":       "",
         })
 
-df = pd.DataFrame(records)
+df_B = pd.DataFrame(records)
 
-resolved_entries = df[df["City"] != ""]["Original_Text"].nunique()
-total_city_rows  = len(df[df["City"] != ""])
+resolved_entries = df_B[df_B["City"] != ""]["Original_Text"].nunique()
+total_city_rows  = len(df_B[df_B["City"] != ""])
 print(f"\n✅ Entries with at least one city: {resolved_entries:,} / {len(entries):,}")
 print(f"📍 Total city rows (one per city):  {total_city_rows:,}")
 
-df.to_csv(OUTPUT_FILE, index=False, encoding="utf-8-sig")
+df_B.to_csv(OUTPUT_FILE, index=False, encoding="utf-8-sig")
 print(f"\n📄 Saved to {OUTPUT_FILE}")
-df.head(30)
+df_B.head(30)
