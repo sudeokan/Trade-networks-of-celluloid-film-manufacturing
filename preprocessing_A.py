@@ -48,8 +48,7 @@ FALSE_POSITIVES = {
     "Distributors","European","Imperial","House","Kingsway","Distillery",
     "Mills","Trading","Boulevard","Militaire","Rue","Avenue","Street",
     "Road","Straat","Strasse","Laan","Weg","Quai","Chemin","Place",
-    "Aluminium","Laminoirs","Suisses",
-    "Bale",  # ambiguous — Croatia vs Basel
+    "Aluminium","Laminoirs","Suisses", "Bale"
 }
 
 # =============================================================================
@@ -223,13 +222,13 @@ for raw in tqdm(entries, desc="Processing"):
             "Country":       "",
         })
 
-df = pd.DataFrame(records)
+df_A = pd.DataFrame(records)
 
-resolved_entries = df[df["City"] != ""]["Original_Text"].nunique()
-total_city_rows  = len(df[df["City"] != ""])
+resolved_entries = df_A[df_A["City"] != ""]["Original_Text"].nunique()
+total_city_rows  = len(df_A[df_A["City"] != ""])
 print(f"\n✅ Entries with at least one city: {resolved_entries:,} / {len(entries):,}")
 print(f"📍 Total city rows (one per city):  {total_city_rows:,}")
 
-df.to_csv(OUTPUT_FILE, index=False, encoding="utf-8-sig")
+df_A.to_csv(OUTPUT_FILE, index=False, encoding="utf-8-sig")
 print(f"\n📄 Saved to {OUTPUT_FILE}")
-df.head(30)
+df_A.head(30)
