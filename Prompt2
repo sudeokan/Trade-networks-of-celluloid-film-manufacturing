@@ -1,0 +1,20 @@
+Can you separate the addresses in this file into street, city, and country?
+
+Instructions:
+- Keep the total number of rows exactly the same as in the original file: 67 rows.
+- Do not delete, merge, or add any rows.
+- Use the address information in column A only.
+- Add three new columns:
+  - Column B: street
+  - Column C: city
+  - Column D: country
+- If a row does not contain clear information for one of these fields, leave that field empty.
+- If a row does not contain any usable address information, leave columns B, C, and D empty and continue to the next row.
+- Do not guess when the information is unclear.
+- Preserve the original content of column A exactly as it is.
+
+Output format:
+- Column A: original text
+- Column B: street
+- Column C: city
+- Column D: country
