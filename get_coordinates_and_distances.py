@@ -53,7 +53,6 @@ def get_distances_df(cities, origin):
     return df
 
 
-# 🔹 Example usage with your dataset
 top_city_list = df_clean["City"].value_counts().head(10).index.tolist()
 
 df_distances = get_distances_df(top_city_list, "Antwerp")
