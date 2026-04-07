@@ -6,17 +6,11 @@ import unicodedata
 import time
 import re
 
-# 1. Cleaner Setup with better Rate Limiting
+# 1. Cleaner Setup
 # Use a unique user_agent and a slightly longer timeout
 geolocator = Nominatim(user_agent="historical_research_cleaner_v2", timeout=10)
 
-# Increased min_delay to 1.5s and added error_wait_seconds to prevent the 429 hard-block
-geocode = RateLimiter(
-    geolocator.geocode, 
-    min_delay_seconds=1.5, 
-    error_wait_seconds=10.0, 
-    max_retries=3
-)
+geocode = RateLimiter(geolocator.geocode, min_delay_seconds=1.5, error_wait_seconds=10.0, max_retries=3)
 
 geo_cache = {}
 
@@ -92,6 +86,11 @@ def final_polish(df):
     df = df[~df["City"].isin(junk_words)]
     
     return df
+
+# Load the files
+dfA = pd.read_csv('cleaned_addresses_A.csv')
+dfB = pd.read_csv('cleaned_addresses_B.csv')
+combined_df = pd.concat([dfA, dfB], ignore_index=True)
 
 # Apply the logic
 combined_df[["City", "Country"]] = combined_df.apply(
