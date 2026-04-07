@@ -24,6 +24,9 @@ python get_coordinates_and_distances.py
 - Converts city names into geographic coordinates
 - Calculates distance from a given city
 
+python get_top_cities_and_countries.py
+- Counts and ranks the most frequent cities and countries in the dataset
+
 prompts
 - example of prompts that were used in generative AI platforms for preprocessing part of the data
 
