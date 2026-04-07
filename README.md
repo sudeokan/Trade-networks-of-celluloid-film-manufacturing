@@ -10,19 +10,25 @@ This project contains simple Python scripts used for analysing location data and
 
 ## Usage
 
+python preprocessing_A.py and preprocessing_B.py
+- Extracts city names from raw, unstructured address text
+- Filters out non-geographic noise and business terms
+- Standardizes results into a clean City/Country format
+
 python standardize_locations.py
-- Cleans city and country names
-- Fixes formatting issues in the dataset
+- Combines datasets and makes city/country names consistent
+- Fixes spelling, accents, and different language versions
+- Groups local districts and neighborhoods into their parent cities
 
 python get_coordinates_and_distances.py
 - Converts city names into geographic coordinates
-- Calculates distance from Antwerp
+- Calculates distance from a given city
 
 prompts
-- example of prompts that were used in generative ai platforms for preprocessing part of the data
+- example of prompts that were used in generative AI platforms for preprocessing part of the data
 
 Adressen_A.csv and Adressen_B.csv
-- our raw dataset
+- raw datasets
 
 cleaned_addresses_A.csv and cleaned_addresses_B.csv
-- manually preprocessed dataset
+- preprocessed datasets
