@@ -36,11 +36,10 @@ Rules:
 - Ignore company names
 - Extract only address part
 - street must include number if exists
-- city must be normalized to English (Brussel → Brussels)
+- city must be normalized to English (Brussel to Brussels)
 - country must be full English name (Belgium, France, Germany)
 - If multiple addresses → choose the most complete one
-- If unclear → return empty strings
-- Return ONLY JSON
+- If unclear then return empty strings
 
 Text:
 {text}
