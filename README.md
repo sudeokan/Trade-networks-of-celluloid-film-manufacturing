@@ -35,3 +35,6 @@ Adressen_A.csv and Adressen_B.csv
 
 cleaned_addresses_A.csv and cleaned_addresses_B.csv
 - preprocessed datasets
+
+cleaned_combined.csv
+- manually preprocessed dataset used for the GIS geocoding, spatial analysis, and density-based clustering
