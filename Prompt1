@@ -1,3 +1,3 @@
-can you separate these adresses into street city country if ther eis no information in the row then leave it empty pass to 
-the other one there should be only 67 rows exactly as the same in the file just add new columns B column street c column 
-city and d column country and they should be based on the adress in each A column
+Separate these addresses into street, city, country; if there is no information in the row, leave it empty and go to the next one. 
+There should be only 67 rows exactly the same in the file. Just add new columns: street in column B, city in column C, and country column D. 
+They should be based on the address in each column A. 
