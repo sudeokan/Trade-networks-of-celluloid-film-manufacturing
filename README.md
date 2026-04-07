@@ -1,6 +1,6 @@
 # Trade-networks-of-celluloid-film-manufacturing
 
-This project contains simple Python scripts used for analysing location data and calculating distances for Gevaert’s supplier analysis with the clean preprocessed manually dataset.
+This project contains simple Python scripts used for analysing location data and calculating distances for Gevaert’s supplier analysis with the clean preprocessed dataset.
 
 ## Installation
 
