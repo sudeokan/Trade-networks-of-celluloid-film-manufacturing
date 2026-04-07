@@ -1,94 +1,104 @@
 import pandas as pd
 import numpy as np
 from geopy.geocoders import Nominatim
+from geopy.extra.rate_limiter import RateLimiter
 import unicodedata
 import time
+import re
 
-# Load dataset
-df = pd.read_csv("cleaned_combined.csv")
+# 1. Cleaner Setup with better Rate Limiting
+# Use a unique user_agent and a slightly longer timeout
+geolocator = Nominatim(user_agent="historical_research_cleaner_v2", timeout=10)
 
-# Keep relevant columns
-df = df[["Street", "City", "Country"]].copy()
+# Increased min_delay to 1.5s and added error_wait_seconds to prevent the 429 hard-block
+geocode = RateLimiter(
+    geolocator.geocode, 
+    min_delay_seconds=1.5, 
+    error_wait_seconds=10.0, 
+    max_retries=3
+)
 
-# -----------------------------
-# 1. Basic cleaning
-# -----------------------------
-for col in ["Street", "City", "Country"]:
-    df[col] = df[col].astype(str).str.strip()
-
-df = df.replace(["", "nan", "None"], np.nan)
-
-# -----------------------------
-# 2. Normalize text (remove accents, fix casing)
-# -----------------------------
-def normalize_text(text):
-    if pd.isna(text):
-        return text
-    
-    text = text.strip()
-    text = unicodedata.normalize("NFKD", text)
-    text = "".join([c for c in text if not unicodedata.combining(c)])
-    
-    return text.title()
-
-df["City"] = df["City"].apply(normalize_text)
-df["Country"] = df["Country"].apply(normalize_text)
-
-# -----------------------------
-# 3. Geocoder setup
-# -----------------------------
-geolocator = Nominatim(user_agent="universal_city_cleaner")
-
-# Cache to avoid repeated API calls
 geo_cache = {}
 
-# -----------------------------
-# 4. Standardize city + country
-# -----------------------------
 def standardize_location(city, country):
-    if pd.isna(city):
+    if pd.isna(city) or city.lower() in ['nan', 'none', '']:
         return pd.Series([None, None])
     
     key = f"{city}, {country}"
-    
     if key in geo_cache:
         return pd.Series(geo_cache[key])
     
     try:
-        location = geolocator.geocode(key, language="en")
-        time.sleep(1)  # avoid rate limiting
+        # Crucial: addressdetails=True gives us the hierarchy (city vs suburb)
+        location = geocode(key, language="en", addressdetails=True)
         
         if location:
             address = location.raw.get("address", {})
             
-            # Extract standardized names
+            # --- PROBLEM 1 FIX: Neighborhood Fragmentation ---
+            # We look for the "Major" container first to group neighborhoods
             city_std = (
-                address.get("city")
-                or address.get("town")
-                or address.get("village")
-                or city
+                address.get("city") or 
+                address.get("town") or 
+                address.get("municipality") or 
+                address.get("village") or
+                city # fallback to original if nothing found
             )
+            
+            # --- PROBLEM 2 FIX: Bilingual Names ("Bruxelles - Brussel") ---
+            # If there's a dash or slash, take the first English-friendly part
+            city_std = re.split(r' [-/] ', city_std)[0]
+            
+            # --- PROBLEM 3 FIX: Administrative Clutter ---
+            # Remove "City of", "Greater", and parentheticals like "(Saale)"
+            city_std = re.sub(r'(?i)City of |Greater |Grad |Municipality| \(.*\)', '', city_std).strip()
             
             country_std = address.get("country", country)
             
-            result = (city_std, country_std)
+            # --- PROBLEM 4 FIX: Junk Results ---
+            # If the geocoder returned a street or "highway" instead of a place, 
+            # it often means the city name was actually a street name.
+            osm_type = location.raw.get("type")
+            if osm_type in ["highway", "attraction", "building"]:
+                # This is likely a false positive (like "Post Street" -> "Post")
+                result = (city, country) # Keep original, don't "standardize" to junk
+            else:
+                result = (city_std, country_std)
+            
             geo_cache[key] = result
             return pd.Series(result)
-    
-    except:
+            
+    except Exception:
         pass
     
-    return pd.Series([city, country])  # fallback
+    return pd.Series([city, country])
 
-# Apply standardization
-df[["City", "Country"]] = df.apply(
+# -----------------------------
+# 5. Final manual "Bridge" for stubborn cases
+# -----------------------------
+def final_polish(df):
+    mapping = {
+        "Brux": "Brussels",
+        "Bruxelles": "Brussels",
+        "13Th Arrondissement": "Paris",
+        "City Of London": "London",
+        "Antwerpen": "Antwerp",
+        "Greater London": "London"
+    }
+    df["City"] = df["City"].replace(mapping)
+    
+    # Remove one-word junk that usually comes from street names
+    junk_words = ["Post", "Justice", "Jardin", "Hans", "Marie", "Francois", "Rue"]
+    df = df[~df["City"].isin(junk_words)]
+    
+    return df
+
+# Apply the logic
+combined_df[["City", "Country"]] = combined_df.apply(
     lambda row: standardize_location(row["City"], row["Country"]),
     axis=1
 )
 
-# -----------------------------
-# 5. Final clean dataset
-# -----------------------------
-df_clean = df.dropna(subset=["City", "Country"]).copy()
+df_clean = final_polish(combined_df.dropna(subset=["City", "Country"]).copy())
 
 print(df_clean.head())
