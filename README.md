@@ -38,3 +38,9 @@ cleaned_addresses_A.csv and cleaned_addresses_B.csv
 
 cleaned_combined.csv
 - manually preprocessed dataset used for the GIS geocoding, spatial analysis, and density-based clustering
+
+## Sources
+- https://khadkechetan.medium.com/address-extraction-and-parser-with-nlp-4d3db7b9535d
+- https://devm.io/python/address-matching-nlp-python/
+- https://medium.com/globant/building-an-address-parser-with-spacy-e3376b7cff
+
